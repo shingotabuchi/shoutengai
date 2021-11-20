@@ -21,12 +21,24 @@ public class Person : MonoBehaviour
     float rngTimer = 0f;
     int lastRng = -1;
     int lastRng1 = -1;
+    MovementState movementState;
+    public float turnSpeedDegrees;
+    public float kasokudo;
+    public float maxSpeed;
     public enum Direction4
     {
         N,
         E,
         S,
         W,
+    }
+    public enum MovementState
+    {
+        AT_EASE,
+        KASOKU,
+        GENSOKU,
+        TURN_E,
+        TURN_W,
     }
     void Start()
     {
@@ -41,12 +53,16 @@ public class Person : MonoBehaviour
         plus45Rotation = Quaternion.Euler(new Vector3(initialRotation.eulerAngles.x,initialRotation.eulerAngles.y,initialRotation.eulerAngles.z + 45f));
         minus45Rotation = Quaternion.Euler(new Vector3(initialRotation.eulerAngles.x,initialRotation.eulerAngles.y,initialRotation.eulerAngles.z - 45f));
         speed = initialSpeed;
+        movementState = MovementState.AT_EASE;
+        StartCoroutine("MovementCouroutine");
     }
 
     void Update()
     {
-        if(isGoingRight)forward = RotateZ(new Vector3(speed,0,0), desiredRotation.eulerAngles.z - 270);
-        else forward = RotateZ(new Vector3(-speed,0,0), desiredRotation.eulerAngles.z - 90);
+        // if(isGoingRight)forward = RotateZ(new Vector3(speed,0,0), desiredRotation.eulerAngles.z - 270);
+        // else forward = RotateZ(new Vector3(-speed,0,0), desiredRotation.eulerAngles.z - 90);
+        if(isGoingRight)forward = RotateZ(new Vector3(speed,0,0), transform.rotation.eulerAngles.z - 270);
+        else forward = RotateZ(new Vector3(-speed,0,0), transform.rotation.eulerAngles.z - 90);
         personBody.velocity = forward;
 
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, personalSpace);
@@ -219,31 +235,72 @@ public class Person : MonoBehaviour
     }
     void Kasoku(){
         desiredRotation = initialRotation;
-        speed = initialSpeed*1.5f;
+        // speed = initialSpeed*1.5f;
+        movementState = MovementState.KASOKU;
     }
     void Gensoku(){
         desiredRotation = initialRotation;
-        speed = initialSpeed*0.5f;
+        // speed = initialSpeed*0.5f;
+        movementState = MovementState.GENSOKU;
     }
     void TurnW(){
         desiredRotation = plus45Rotation;
-        speed = initialSpeed;
+        // speed = initialSpeed;
+        movementState = MovementState.TURN_W;
     }
     void TurnE(){
         desiredRotation = minus45Rotation;
-        speed = initialSpeed;
+        // speed = initialSpeed;
+        movementState = MovementState.TURN_E;
     }
     void AtEase(){
         desiredRotation = initialRotation;
-        speed = initialSpeed;
+        // speed = initialSpeed;
+        movementState = MovementState.AT_EASE;
     }
-    // IEnumerator MovementCouroutine(){
-
-    //     while(speed<maxSpeed){
-
-    //         yield return null;
-    //     }
-    // }
+    IEnumerator MovementCouroutine(){
+        while(true){
+            if(movementState == MovementState.AT_EASE){
+                while(speed!=initialSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
+                    AdjustRotation(Time.deltaTime);
+                    if(speed>initialSpeed + 0.1f) speed -= kasokudo*Time.deltaTime;
+                    else if(speed<initialSpeed - 0.1f) speed += kasokudo*Time.deltaTime;
+                    else speed = initialSpeed;
+                    yield return null;
+                }
+            }
+            else if(movementState == MovementState.KASOKU){
+                while(speed<maxSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
+                    AdjustRotation(Time.deltaTime);
+                    speed += kasokudo*Time.deltaTime;
+                    yield return null;
+                }
+            }
+            else if(movementState == MovementState.GENSOKU){
+                while(speed>0||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
+                    AdjustRotation(Time.deltaTime);
+                    speed -= kasokudo*Time.deltaTime;
+                    if(speed<0) speed = 0;
+                    yield return null;
+                }
+            }
+            else{
+                while(speed!=initialSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
+                    AdjustRotation(Time.deltaTime);
+                    if(speed>initialSpeed + 0.1f) speed -= kasokudo*Time.deltaTime;
+                    else if(speed<initialSpeed - 0.1f) speed += kasokudo*Time.deltaTime;
+                    else speed = initialSpeed;
+                    yield return null;
+                }
+            }
+            yield return null;
+        }
+    }
+    void AdjustRotation(float deltatime){
+        if(transform.rotation.eulerAngles.z>desiredRotation.eulerAngles.z + 1f)  transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x,transform.rotation.eulerAngles.y,transform.rotation.eulerAngles.z - turnSpeedDegrees*deltatime));
+        else if(transform.rotation.eulerAngles.z<desiredRotation.eulerAngles.z - 1f)  transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x,transform.rotation.eulerAngles.y,transform.rotation.eulerAngles.z + turnSpeedDegrees*deltatime));
+        else transform.rotation = desiredRotation;
+    }
     Direction4 GetDirection4(Vector3 thisPosition, Vector3 colliderPosition){
         Vector3 rawDirection = colliderPosition - thisPosition;
         rawDirection = rawDirection.normalized;
