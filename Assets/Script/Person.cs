@@ -16,6 +16,7 @@ public class Person : MonoBehaviour
     float height,width;
     float ScreenHalfWidth;
     public float personalSpace;
+    public float chooseSideRadius;
     public float initialSpeed;
     float speed;
     float rngTimer = 0f;
@@ -25,8 +26,11 @@ public class Person : MonoBehaviour
     public float turnSpeedDegrees;
     public float kasokudo;
     public float maxSpeed;
+    public bool isShoumenShoutotsu;
+    Direction4 isShoumenShoutotsuGoDirection;
     public enum Direction4
     {
+        None,
         N,
         E,
         S,
@@ -66,13 +70,14 @@ public class Person : MonoBehaviour
         personBody.velocity = forward;
 
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, personalSpace);
-        if(hitColliders.Length>1){
-            Dictionary<Direction4,bool> isInDirection4 = new Dictionary<Direction4,bool>(){
-                {Direction4.N, false},
-                {Direction4.E, false},
-                {Direction4.S, false},
-                {Direction4.W, false},
-            };
+        Dictionary<Direction4,bool> isInDirection4 = new Dictionary<Direction4,bool>(){
+            {Direction4.N, false},
+            {Direction4.E, false},
+            {Direction4.S, false},
+            {Direction4.W, false},
+        };
+        if(isShoumenShoutotsu) MainBehaviour4(isInDirection4);
+        else if(hitColliders.Length>1){
             foreach (var hitCollider in hitColliders)
             {
                 if(transform.position!=hitCollider.transform.position){
@@ -84,7 +89,18 @@ public class Person : MonoBehaviour
                         if(isGoingRight)isInDirection4[Direction4.E] = true;
                         else isInDirection4[Direction4.W] = true;
                     }
-                    else isInDirection4[GetDirection4(transform.position,hitCollider.transform.position)] = true;
+                    else{
+                        Direction4 directionOfCollider = GetDirection4(transform.position,hitCollider.transform.position);
+                        if(directionOfCollider == Direction4.N && hitCollider.transform.gameObject.layer == LayerMask.NameToLayer("Person")){
+                            Person colliderScript = hitCollider.transform.gameObject.GetComponent<Person>();
+                            if(directionOfCollider == Direction4.N&&isGoingRight!=colliderScript.isGoingRight){
+                                isShoumenShoutotsu = true;
+                                isShoumenShoutotsuGoDirection = ChooseSide();
+                                colliderScript.ImGoingThisWay(isShoumenShoutotsuGoDirection);
+                            }
+                        }
+                        isInDirection4[directionOfCollider] = true;
+                    }
                 }
             }
             MainBehaviour4(isInDirection4);
@@ -112,7 +128,56 @@ public class Person : MonoBehaviour
             }
         }
     }
+    Direction4 ChooseSide(){
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, chooseSideRadius, 1 << LayerMask.NameToLayer("Person"));
+        float ourSideCountOnEast = 0;
+        float ourSideCountOnWest = 0;
+        float theirSideCountOnEast = 0;
+        float theirSideCountOnWest = 0;
+        foreach (var hitCollider in hitColliders)
+        {
+            if(transform.position!=hitCollider.transform.position){
+                Direction4 Side = GetSide(transform.position,hitCollider.transform.position);
+                Person colliderScript = hitCollider.transform.gameObject.GetComponent<Person>();
+                if(isGoingRight!=colliderScript.isGoingRight){
+                    if(Side == Direction4.E) theirSideCountOnEast += 1;
+                    if(Side == Direction4.W) theirSideCountOnWest += 1;
+                } 
+                else{
+                    if(Side == Direction4.E) ourSideCountOnEast += 1;
+                    if(Side == Direction4.W) ourSideCountOnWest += 1;
+                }
+            }
+        }
+        float ratioOnEast = ourSideCountOnEast/(ourSideCountOnEast + theirSideCountOnEast);
+        float ratioOnWest = ourSideCountOnWest/(ourSideCountOnWest + theirSideCountOnWest);
+        if(ratioOnEast>ratioOnWest){
+            return Direction4.E;
+        }
+        else return Direction4.W;
+    }
+    void ImGoingThisWay(Direction4 gothisway){
+        isShoumenShoutotsu = true;
+        isShoumenShoutotsuGoDirection = gothisway;
+    }
+    // IEnumerator ShoumenShoutotsuCoroutine(){
+    //     while(true){
+    //         while(isShoumenShoutotsu){
+    //             TurnForShoumenShoutotsu = true;
+    //             isShoumenShoutotsu = false;
+    //             yield return new WaitForSeconds(1f);
+    //         }
+    //         yield return null;
+    //     }
+    // }
     void MainBehaviour4(Dictionary<Direction4,bool> isindirection){
+        if(isShoumenShoutotsu){
+            if(isShoumenShoutotsuGoDirection == Direction4.E) TurnE();
+            else if(isShoumenShoutotsuGoDirection == Direction4.W) TurnW();
+            isShoumenShoutotsu = false;
+            return;
+        }
+
         int rng;
         int directionsFilled = 0;
         for (int i = 0; i < 4; i++)
@@ -196,7 +261,6 @@ public class Person : MonoBehaviour
         else{
             if(isindirection[Direction4.N]){
                 if(alwaysZenshin){
-                    print(3);
                     if(lastRng == -1){
                         lastRng = Random.Range(0,2);
                     }
@@ -205,11 +269,9 @@ public class Person : MonoBehaviour
                     else TurnW();
                 }
                 else if(alwaysYuzuru){
-                    print(1);
                     Gensoku();
                 }
                 else {
-                    print(2);
                     if(lastRng == -1){
                         lastRng = Random.Range(0,2);
                     }
@@ -236,7 +298,7 @@ public class Person : MonoBehaviour
     void Kasoku(){
         desiredRotation = initialRotation;
         // speed = initialSpeed*1.5f;
-        movementState = MovementState.KASOKU;
+        // movementState = MovementState.KASOKU;
     }
     void Gensoku(){
         desiredRotation = initialRotation;
@@ -260,6 +322,12 @@ public class Person : MonoBehaviour
     }
     IEnumerator MovementCouroutine(){
         while(true){
+            // if(TurnForShoumenShoutotsu){
+            //     if(isShoumenShoutotsuGoDirection == Direction4.E) TurnE();
+            //     else if(isShoumenShoutotsuGoDirection == Direction4.W) TurnW();
+            //     TurnForShoumenShoutotsu = false;
+            // }
+
             if(movementState == MovementState.AT_EASE){
                 while(speed!=initialSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
                     AdjustRotation(Time.deltaTime);
@@ -284,7 +352,7 @@ public class Person : MonoBehaviour
                     yield return null;
                 }
             }
-            else{
+            else if(movementState == MovementState.TURN_E||movementState == MovementState.TURN_W){
                 while(speed!=initialSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
                     AdjustRotation(Time.deltaTime);
                     if(speed>initialSpeed + 0.1f) speed -= kasokudo*Time.deltaTime;
@@ -318,6 +386,19 @@ public class Person : MonoBehaviour
             else returnValue = Direction4.S;
         }
 
+        if(!isGoingRight)returnValue = (Direction4)(((int)returnValue + 2)%4);
+        return returnValue;
+    }
+    Direction4 GetSide(Vector3 thisPosition, Vector3 colliderPosition){
+        Vector3 rawDirection = colliderPosition - thisPosition;
+        rawDirection = rawDirection.normalized;
+        Direction4 returnValue;
+        if(rawDirection.y>0){
+            returnValue =  Direction4.W;
+        }
+        else{
+            returnValue =  Direction4.E;
+        }
         if(!isGoingRight)returnValue = (Direction4)(((int)returnValue + 2)%4);
         return returnValue;
     }

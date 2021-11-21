@@ -54,26 +54,26 @@ public class PersonSpawner : MonoBehaviour
                 //     newPersonScript.alwaysYuzuru = false;
                 // }
             }
-            // if(rngGoingLeft<=spawnProbability){
-            //     Vector3 spawnPoint = new Vector3(10,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
-            //     GameObject newPerson = Instantiate(personPrefab,spawnPoint,Quaternion.Euler(new Vector3(0,0,90)));
-            //     Person newPersonScript = newPerson.GetComponent<Person>();
-            //     newPersonScript.isGoingRight = false;
-            //     newPersonScript.initialSpeed = Random.Range(0.75f,1.5f);
-            //     // int Rng = Random.Range(0,3);
-            //     // if(Rng == 2){
-            //     //     newPersonScript.alwaysZenshin = true;
-            //     //     newPersonScript.alwaysYuzuru = false;
-            //     // } 
-            //     // else if(Rng == 1){
-            //     //     newPersonScript.alwaysZenshin = false;
-            //     //     newPersonScript.alwaysYuzuru = true;
-            //     // }
-            //     // else{
-            //     //     newPersonScript.alwaysZenshin = false;
-            //     //     newPersonScript.alwaysYuzuru = false;
-            //     // }
-            // }
+            if(rngGoingLeft<=spawnProbability){
+                Vector3 spawnPoint = new Vector3(10,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
+                GameObject newPerson = Instantiate(personPrefab,spawnPoint,Quaternion.Euler(new Vector3(0,0,90)));
+                Person newPersonScript = newPerson.GetComponent<Person>();
+                newPersonScript.isGoingRight = false;
+                newPersonScript.initialSpeed = Random.Range(0.75f,1.5f);
+                // int Rng = Random.Range(0,3);
+                // if(Rng == 2){
+                //     newPersonScript.alwaysZenshin = true;
+                //     newPersonScript.alwaysYuzuru = false;
+                // } 
+                // else if(Rng == 1){
+                //     newPersonScript.alwaysZenshin = false;
+                //     newPersonScript.alwaysYuzuru = true;
+                // }
+                // else{
+                //     newPersonScript.alwaysZenshin = false;
+                //     newPersonScript.alwaysYuzuru = false;
+                // }
+            }
         }
         else{
             if(rngGoingRight <= Mathf.Exp(-impulseTime/ftimer)){

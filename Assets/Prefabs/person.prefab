@@ -101,10 +101,12 @@ MonoBehaviour:
   alwaysZenshin: 1
   alwaysYuzuru: 0
   personalSpace: 0.5
+  chooseSideRadius: 2
   initialSpeed: 0
   turnSpeedDegrees: 45
   kasokudo: 1
   maxSpeed: 2
+  isShoumenShoutotsu: 0
 --- !u!54 &5944007019555408429
 Rigidbody:
   m_ObjectHideFlags: 0
