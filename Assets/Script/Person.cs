@@ -57,6 +57,10 @@ public class Person : MonoBehaviour
         minus45Rotation = Quaternion.Euler(new Vector3(initialRotation.eulerAngles.x,initialRotation.eulerAngles.y,initialRotation.eulerAngles.z - 45f));
         speed = initialSpeed;
         movementState = MovementState.AT_EASE;
+        if(Settings.isBuild){
+            personalSpace = Settings.PersonalSpace;
+            chooseSideRadius = Settings.ChooseSideRange;
+        }
         StartCoroutine("MovementCouroutine");
     }
 
@@ -119,7 +123,6 @@ public class Person : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-
         if(lastRng!=-1||lastRng1!=-1){
             rngTimer += Time.deltaTime;
             if(rngTimer>1f){

@@ -8,9 +8,10 @@ public class Settings : MonoBehaviour
 {
     public static float Range, PersonalSpace,ChooseSideRange,AverageSpeed,RateOfPeople;
     public Slider RangeSlider, PersonalSpaceSlider,ChooseSideRangeSlider,AverageSpeedSlider,RateOfPeopleSlider;
+    public static bool isBuild = false;
     void Start()
     {
-        
+        isBuild = true;
     }
 
     // Update is called once per frame

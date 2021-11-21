@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PersonSpawner : MonoBehaviour
 {
@@ -21,7 +22,13 @@ public class PersonSpawner : MonoBehaviour
         
         
         personHeight = personPrefab.GetComponent<Renderer>().bounds.size.y;
-        print(personPrefab.GetComponent<Renderer>().bounds.size.y);
+        // print(personPrefab.GetComponent<Renderer>().bounds.size.y);
+
+        if(Settings.isBuild){
+            spawnProbability = Settings.RateOfPeople;
+            spawnRange = Settings.Range;
+            initialSpeedAverage = Settings.AverageSpeed;
+        }
         // personWidth = personPrefab.GetComponent<Collider>().bounds.size.x;
 
         // for (int i = 0; i < numberOfPeople; i++)
@@ -88,5 +95,9 @@ public class PersonSpawner : MonoBehaviour
             }
             else ftimer += Time.deltaTime;
         }
+    }
+
+    public void Yameru(){
+        SceneManager.LoadScene("Menu");
     }
 }
