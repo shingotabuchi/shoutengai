@@ -30,7 +30,6 @@ public class Person : MonoBehaviour
     Direction4 isShoumenShoutotsuGoDirection;
     public enum Direction4
     {
-        None,
         N,
         E,
         S,
@@ -109,12 +108,14 @@ public class Person : MonoBehaviour
             AtEase();
         }
         if(isGoingRight){
-            if(transform.position.x >= ScreenHalfWidth + width){
+            // if(transform.position.x >= ScreenHalfWidth + width){
+            if(transform.position.x >= PersonSpawner.spawnRange){
                 Destroy(gameObject);
             }
         }
         else{
-            if(transform.position.x <= -ScreenHalfWidth - width){
+            // if(transform.position.x <= -ScreenHalfWidth - width){
+            if(transform.position.x <= -PersonSpawner.spawnRange){
                 Destroy(gameObject);
             }
         }
@@ -151,7 +152,7 @@ public class Person : MonoBehaviour
         }
         float ratioOnEast = ourSideCountOnEast/(ourSideCountOnEast + theirSideCountOnEast);
         float ratioOnWest = ourSideCountOnWest/(ourSideCountOnWest + theirSideCountOnWest);
-        if(ratioOnEast>ratioOnWest){
+        if(ratioOnEast>=ratioOnWest){
             return Direction4.E;
         }
         else return Direction4.W;
@@ -160,16 +161,6 @@ public class Person : MonoBehaviour
         isShoumenShoutotsu = true;
         isShoumenShoutotsuGoDirection = gothisway;
     }
-    // IEnumerator ShoumenShoutotsuCoroutine(){
-    //     while(true){
-    //         while(isShoumenShoutotsu){
-    //             TurnForShoumenShoutotsu = true;
-    //             isShoumenShoutotsu = false;
-    //             yield return new WaitForSeconds(1f);
-    //         }
-    //         yield return null;
-    //     }
-    // }
     void MainBehaviour4(Dictionary<Direction4,bool> isindirection){
         if(isShoumenShoutotsu){
             if(isShoumenShoutotsuGoDirection == Direction4.E) TurnE();
@@ -322,12 +313,6 @@ public class Person : MonoBehaviour
     }
     IEnumerator MovementCouroutine(){
         while(true){
-            // if(TurnForShoumenShoutotsu){
-            //     if(isShoumenShoutotsuGoDirection == Direction4.E) TurnE();
-            //     else if(isShoumenShoutotsuGoDirection == Direction4.W) TurnW();
-            //     TurnForShoumenShoutotsu = false;
-            // }
-
             if(movementState == MovementState.AT_EASE){
                 while(speed!=initialSpeed||transform.rotation.eulerAngles.z!=desiredRotation.eulerAngles.z){
                     AdjustRotation(Time.deltaTime);

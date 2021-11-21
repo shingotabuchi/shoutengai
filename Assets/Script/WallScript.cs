@@ -9,7 +9,7 @@ public class WallScript : MonoBehaviour
     {
         float ScreenHalfHeight = Camera.main.orthographicSize;
         float ScreenHalfWidth = ScreenHalfHeight*Camera.main.aspect;
-        transform.localScale = new Vector3(transform.localScale.x*ScreenHalfWidth*2 + 50f,transform.localScale.y*ScreenHalfHeight*2*Haba,transform.localScale.z);
+        transform.localScale = new Vector3(transform.localScale.x*ScreenHalfWidth*2 + PersonSpawner.spawnRange*2,transform.localScale.y*ScreenHalfHeight*2*Haba,transform.localScale.z);
     }
 
     void Update()

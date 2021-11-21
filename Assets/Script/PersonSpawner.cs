@@ -12,6 +12,8 @@ public class PersonSpawner : MonoBehaviour
     float ftimer = 0;
     float ScreenHalfWidth,ScreenHalfHeight;
     float personWidth,personHeight;
+    public static float spawnRange = 30;
+    public float initialSpeedAverage = 1;
     void Start()
     {
         ScreenHalfHeight = Camera.main.orthographicSize;
@@ -35,11 +37,11 @@ public class PersonSpawner : MonoBehaviour
         float rngGoingLeft = Random.Range(0f,1f);
         if(isGaussian){
             if(rngGoingRight<=spawnProbability){
-                Vector3 spawnPoint = new Vector3(-10,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
+                Vector3 spawnPoint = new Vector3(-spawnRange,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
                 GameObject newPerson = Instantiate(personPrefab,spawnPoint,personPrefab.transform.rotation);
                 Person newPersonScript = newPerson.GetComponent<Person>();
                 newPersonScript.isGoingRight = true;
-                newPersonScript.initialSpeed = Random.Range(0.75f,1.5f);
+                newPersonScript.initialSpeed = Random.Range(initialSpeedAverage*0.8f,initialSpeedAverage*1.2f);
                 // int Rng = Random.Range(0,3);
                 // if(Rng == 2){
                 //     newPersonScript.alwaysZenshin = true;
@@ -55,11 +57,11 @@ public class PersonSpawner : MonoBehaviour
                 // }
             }
             if(rngGoingLeft<=spawnProbability){
-                Vector3 spawnPoint = new Vector3(10,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
+                Vector3 spawnPoint = new Vector3(spawnRange,Random.Range(-ScreenHalfHeight*WallScript.Haba + personHeight, ScreenHalfHeight*WallScript.Haba - personHeight),0);
                 GameObject newPerson = Instantiate(personPrefab,spawnPoint,Quaternion.Euler(new Vector3(0,0,90)));
                 Person newPersonScript = newPerson.GetComponent<Person>();
                 newPersonScript.isGoingRight = false;
-                newPersonScript.initialSpeed = Random.Range(0.75f,1.5f);
+                newPersonScript.initialSpeed = Random.Range(initialSpeedAverage*0.8f,initialSpeedAverage*1.2f);
                 // int Rng = Random.Range(0,3);
                 // if(Rng == 2){
                 //     newPersonScript.alwaysZenshin = true;
